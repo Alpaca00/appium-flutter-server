@@ -478,11 +478,12 @@ class ElementHelper {
   static Future<void> _moveToElementWithDuration(TestGesture gesture,
       Offset targetLocation, int? dragDuration, WidgetTester tester) async {
     if (dragDuration != null && dragDuration > 0) {
-      await tester.pump(const Duration(milliseconds: 2500));
+      await tester.pump(const Duration(milliseconds: 500));
       await gesture.moveTo(targetLocation,
           timeStamp: Duration(milliseconds: dragDuration));
+      await tester.pump(const Duration(milliseconds: 500));
       await gesture.up();
-      await tester.pump(const Duration(milliseconds: 2500));
+      await tester.pump();
     } else {
       await gesture.moveTo(targetLocation);
       await tester.pump();
