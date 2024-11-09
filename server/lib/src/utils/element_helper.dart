@@ -470,25 +470,37 @@ class ElementHelper {
       final Offset targetElementLocation = tester.getCenter(targetEl.by);
       final TestGesture gesture =
           await tester.startGesture(sourceElementLocation, pointer: 7);
-      await _moveToElementWithDuration(
-          gesture, targetElementLocation, model.dragDuration, tester);
+      await _moveToElementWithDuration(gesture, targetElementLocation,
+          model.initialTimeout, model.moveTimeout, model.finalTimeout, tester);
     });
   }
 
-  static Future<void> _moveToElementWithDuration(TestGesture gesture,
-      Offset targetLocation, int? dragDuration, WidgetTester tester) async {
-    if (dragDuration != null && dragDuration > 0) {
-      await tester.pump(const Duration(milliseconds: 500));
-      await gesture.moveTo(targetLocation,
-          timeStamp: Duration(milliseconds: dragDuration));
-      await tester.pump(const Duration(milliseconds: 1500));
-      await gesture.up();
+  static Future<void> _moveToElementWithDuration(
+      TestGesture gesture,
+      Offset targetLocation,
+      int? initialTimeout,
+      int? moveTimeout,
+      int? finalTimeout,
+      WidgetTester tester) async {
+    if (initialTimeout != null && initialTimeout > 0) {
+      await tester.pump(Duration(milliseconds: initialTimeout));
+    } else {
+      await tester.pump(Duration.zero);
+    }
+    await gesture.moveTo(targetLocation);
+
+    if (moveTimeout != null && moveTimeout > 0) {
+      await tester.pump(Duration(milliseconds: moveTimeout));
+    } else {
+      await tester.pump(Duration.zero);
+    }
+    await gesture.up();
+
+    if (finalTimeout != null && finalTimeout > 0) {
+      await tester.pump(Duration(milliseconds: finalTimeout));
       await tester.pumpAndSettle();
     } else {
-      await gesture.moveTo(targetLocation);
-      await tester.pump();
-      await gesture.up();
-      await tester.pump();
+      await tester.pump(Duration.zero);
     }
   }
 
