@@ -470,17 +470,23 @@ class ElementHelper {
       final Offset targetElementLocation = tester.getCenter(targetEl.by);
       final TestGesture gesture =
           await tester.startGesture(sourceElementLocation, pointer: 7);
-      if (model.dragDuration != null && model.dragDuration! > 0) {
-        final int dragDuration = model.dragDuration!;
-        await gesture.moveTo(targetElementLocation,
-            timeStamp: Duration(milliseconds: dragDuration));
-      } else {
-        await gesture.moveTo(targetElementLocation);
-      }
+      await _moveToElementWithDuration(
+          gesture, targetElementLocation, model.dragDuration, tester);
       await tester.pump();
       await gesture.up();
       await tester.pump();
     });
+  }
+
+  static Future<void> _moveToElementWithDuration(TestGesture gesture,
+      Offset targetLocation, int? dragDuration, WidgetTester tester) async {
+    if (dragDuration != null && dragDuration > 0) {
+      await tester.pump(const Duration(milliseconds: 500));
+      await gesture.moveTo(targetLocation,
+          timeStamp: Duration(milliseconds: dragDuration));
+    } else {
+      await gesture.moveTo(targetLocation);
+    }
   }
 
   static Future<Finder> scrollUntilVisible({
