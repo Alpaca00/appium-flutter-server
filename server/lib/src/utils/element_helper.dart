@@ -472,9 +472,6 @@ class ElementHelper {
           await tester.startGesture(sourceElementLocation, pointer: 7);
       await _moveToElementWithDuration(
           gesture, targetElementLocation, model.dragDuration, tester);
-      await tester.pump();
-      await gesture.up();
-      await tester.pump();
     });
   }
 
@@ -484,8 +481,13 @@ class ElementHelper {
       await tester.pump(const Duration(milliseconds: 2500));
       await gesture.moveTo(targetLocation,
           timeStamp: Duration(milliseconds: dragDuration));
+      await gesture.up();
+      await tester.pump(const Duration(milliseconds: 2500));
     } else {
       await gesture.moveTo(targetLocation);
+      await tester.pump();
+      await gesture.up();
+      await tester.pump();
     }
   }
 
