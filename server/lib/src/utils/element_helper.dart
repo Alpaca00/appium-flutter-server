@@ -470,7 +470,13 @@ class ElementHelper {
       final Offset targetElementLocation = tester.getCenter(targetEl.by);
       final TestGesture gesture =
           await tester.startGesture(sourceElementLocation, pointer: 7);
-      await gesture.moveTo(targetElementLocation);
+      if (model.dragDuration != null && model.dragDuration! > 0) {
+        final int dragDuration = model.dragDuration!;
+        await gesture.moveTo(targetElementLocation,
+            timeStamp: Duration(milliseconds: dragDuration));
+      } else {
+        await gesture.moveTo(targetElementLocation);
+      }
       await tester.pump();
       await gesture.up();
       await tester.pump();
