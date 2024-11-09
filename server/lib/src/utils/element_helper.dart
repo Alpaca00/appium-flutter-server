@@ -483,7 +483,7 @@ class ElementHelper {
           timeStamp: Duration(milliseconds: dragDuration));
       await tester.pump(const Duration(milliseconds: 500));
       await gesture.up();
-      await tester.pump();
+      await tester.pumpAndSettle();
     } else {
       await gesture.moveTo(targetLocation);
       await tester.pump();
