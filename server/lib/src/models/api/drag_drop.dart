@@ -23,6 +23,6 @@ class DragAndDropModel {
   Map<String, dynamic> toJson() => <String, dynamic>{
     'source': source.toJson(),
     'target': target.toJson(),
-    'widgetOptions': elementOptions,
+    'elementOptions': elementOptions,
   };
 }
