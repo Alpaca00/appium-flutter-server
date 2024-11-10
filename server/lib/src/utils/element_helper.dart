@@ -472,27 +472,53 @@ class ElementHelper {
       final TestGesture gesture =
           await tester.startGesture(sourceElementLocation, pointer: 7);
 
-      await _moveToElementWithDuration(
-          gesture, targetElementLocation, model, tester);
+      await _performDragAndDrop(gesture, targetElementLocation, model, tester);
     });
   }
 
-  static Future<void> _moveToElementWithDuration(
-      TestGesture gesture,
-      Offset targetElementLocation,
-      DragAndDropModel model,
-      WidgetTester tester) async {
+  static Future<void> _performDragAndDrop(
+    TestGesture gesture,
+    Offset targetLocation,
+    DragAndDropModel model,
+    WidgetTester tester,
+  ) async {
+    var options = model.elementOptions;
 
-    // await gesture.moveTo(targetLocation);
-    // await tester.pump();
-    // await gesture.up();
-    // await tester.pump();
+    if (options != null) {
+      await _handleDragAndDropElementWithDurationAndAnimationCompleted(
+          gesture, targetLocation, model, tester);
+    } else {
+      await _handleDragAndDropElementBase(
+          gesture, targetLocation, model, tester);
+    }
+  }
 
-    await tester.pump(Duration(milliseconds: model.initialTimeout ?? 0));
-    await gesture.moveTo(targetElementLocation);
-    await tester.pump(Duration(milliseconds: model.moveTimeout ?? 0));
+  static Future<void> _handleDragAndDropElementBase(
+    TestGesture gesture,
+    Offset targetLocation,
+    DragAndDropModel model,
+    WidgetTester tester,
+  ) async {
+    await gesture.moveTo(targetLocation);
+    await tester.pump();
     await gesture.up();
-    await tester.pumpAndSettle(Duration(milliseconds: model.finalTimeout ?? 0));
+    await tester.pump();
+  }
+
+  static Future<void> _handleDragAndDropElementWithDurationAndAnimationCompleted(
+    TestGesture gesture,
+    Offset targetLocation,
+    DragAndDropModel model,
+    WidgetTester tester,
+  ) async {
+    var options = model.elementOptions ?? {};
+
+    await tester.pump(Duration(milliseconds: options['initialTimeout'] ?? 0));
+    await gesture.moveTo(targetLocation);
+    await tester.pump(Duration(milliseconds: options['moveTimeout'] ?? 0));
+    await gesture.up();
+    await tester
+        .pumpAndSettle(Duration(milliseconds: options['finalTimeout'] ?? 0));
   }
 
   static Future<Finder> scrollUntilVisible({
