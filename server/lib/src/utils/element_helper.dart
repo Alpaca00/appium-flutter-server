@@ -459,49 +459,40 @@ class ElementHelper {
   static Future<void> dragAndDrop(DragAndDropModel model) async {
     return TestAsyncUtils.guard(() async {
       WidgetTester tester = _getTester();
-      final String sourceElementId = model.source.id;
-      final String targetElementId = model.target.id;
       Session session = FlutterDriver.instance.getSessionOrThrow()!;
+
       FlutterElement sourceEl =
-          await session.elementsCache.get(sourceElementId);
+          await session.elementsCache.get(model.source.id);
       FlutterElement targetEl =
-          await session.elementsCache.get(targetElementId);
+          await session.elementsCache.get(model.target.id);
+
       final Offset sourceElementLocation = tester.getCenter(sourceEl.by);
       final Offset targetElementLocation = tester.getCenter(targetEl.by);
+
       final TestGesture gesture =
           await tester.startGesture(sourceElementLocation, pointer: 7);
-      await _moveToElementWithDuration(gesture, targetElementLocation,
-          model.initialTimeout, model.moveTimeout, model.finalTimeout, tester);
+
+      await _moveToElementWithDuration(
+          gesture, targetElementLocation, model, tester);
     });
   }
 
   static Future<void> _moveToElementWithDuration(
       TestGesture gesture,
-      Offset targetLocation,
-      int? initialTimeout,
-      int? moveTimeout,
-      int? finalTimeout,
+      Offset targetElementLocation,
+      DragAndDropModel model,
       WidgetTester tester) async {
-    if (initialTimeout != null && initialTimeout > 0) {
-      await tester.pump(Duration(milliseconds: initialTimeout));
-    } else {
-      await tester.pump(Duration.zero);
-    }
-    await gesture.moveTo(targetLocation);
 
-    if (moveTimeout != null && moveTimeout > 0) {
-      await tester.pump(Duration(milliseconds: moveTimeout));
-    } else {
-      await tester.pump(Duration.zero);
-    }
+    // await gesture.moveTo(targetLocation);
+    // await tester.pump();
+    // await gesture.up();
+    // await tester.pump();
+
+    await tester.pump(Duration(milliseconds: model.initialTimeout ?? 0));
+    await gesture.moveTo(targetElementLocation);
+    await tester.pump(Duration(milliseconds: model.moveTimeout ?? 0));
     await gesture.up();
-
-    if (finalTimeout != null && finalTimeout > 0) {
-      await tester.pump(Duration(milliseconds: finalTimeout));
-      await tester.pumpAndSettle();
-    } else {
-      await tester.pump(Duration.zero);
-    }
+    await tester.pumpAndSettle(Duration(milliseconds: model.finalTimeout ?? 0));
   }
 
   static Future<Finder> scrollUntilVisible({
